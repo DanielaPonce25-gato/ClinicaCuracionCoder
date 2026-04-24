@@ -1,0 +1,23 @@
+function hasRole(allowedRoles) {
+  return (req, res, next) => {
+    const user = req.session?.user;  
+
+    if (!user) {
+      return res.status(401).json({  
+        error: 'No autenticado',
+      });
+    }
+
+
+    // Verifica si el rol del usuario (user.role) está incluido en allowedRoles.
+    if (!allowedRoles.includes(user.role)) { 
+      return res.status(403).json({
+        error: `Acceso denegado. Tu rol es "${user.role}"`,
+      });
+    }
+
+    next();
+  };
+}
+
+module.exports = { hasRole }
