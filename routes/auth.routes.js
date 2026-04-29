@@ -4,18 +4,24 @@ const bcrypt = require('bcrypt');
 const { getDB } = require('../config/database');
 const { allowedRoles } = require('../middlewares/roles');
 
+const passport = require('../config/passport');
+const User = require('../models/User');
+
 const router = Router();
 
 // El registro crea la cuenta del usuario en la base de datos, 
 
-// POST /api/auth/register
-// localhost:3000/api/auth/register
+// POST /api/v1/auth/register
+// localhost:3000/api/v1/auth/register
 router.post('/register', async (req, res) => {
   try {
-    const { username, password, role } = req.body;
+    const {first_name,last_name,email, password, role } = req.body;
 
-    if (!username || !password || !role) {
-      return res.status(400).json({ error: 'Faltan datos.' });
+    if (!first_name || !last_name || !email || !password || !role) {
+      return res.status(400).json({
+        error: 'Faltan datos',
+        recibido: req.body
+      });
     }
 
     if (!allowedRoles.includes(role)) {
@@ -24,7 +30,7 @@ router.post('/register', async (req, res) => {
 
     const usersCollection = getDB().collection('users');
 
-    const existingUser = await usersCollection.findOne({ username });
+    const existingUser = await usersCollection.findOne({ email });
     if (existingUser) {
       return res.status(409).json({ error: 'El usuario ya existe.' });
     }
@@ -32,7 +38,9 @@ router.post('/register', async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10); // 10 salt rounds
 
     const newUser = {
-      username,
+      first_name,
+      last_name,
+      email,
       password: hashedPassword,
       role: role,
     };
@@ -43,7 +51,7 @@ router.post('/register', async (req, res) => {
       message: 'Usuario registrado exitosamente.',
       user: {
         id: result.insertedId,
-        username: newUser.username,
+        email: newUser.email,
         role: newUser.role,
       },
     });
@@ -55,19 +63,19 @@ router.post('/register', async (req, res) => {
 });
 
 
-// POST /api/auth/login
-// localhost:3000/api/auth/login
+// POST /api/v1/auth/login
+// localhost:3000/api/v1/auth/login
 router.post('/login', async (req, res) => {
   try {
-    const { username, password } = req.body;
+    const { email, password } = req.body;
 
-    if (!username || !password) {
+    if (!email || !password) {
       return res.status(400).json({ error: 'Username y password son requeridos.' });
     }
 
     const usersCollection = getDB().collection('users');
 
-    const user = await usersCollection.findOne({ username });
+    const user = await usersCollection.findOne({ email });
     if (!user) {
       return res.status(401).json({ error: 'Usuario no encontrado.' });
     }
@@ -83,7 +91,7 @@ router.post('/login', async (req, res) => {
     const token = jwt.sign(  // sign genera el token, recibe la informacion 
       {
         userId: user._id,
-        username: user.username,
+        email: user.email,
         role: user.role,
       },
       process.env.JWT_SECRET,
@@ -93,7 +101,7 @@ router.post('/login', async (req, res) => {
     // Guarda sesión
     req.session.user = {
       userId: user._id,
-      username: user.username,
+      email: user.email,
       role: user.role,
     };
 
@@ -111,8 +119,8 @@ router.post('/login', async (req, res) => {
 });
 
 
-// POST /api/auth/logout
-// localhost:3000/api/auth/logout
+// POST /api/v1/auth/logout
+// localhost:3000/api/v1/auth/logout
 router.post('/logout', (req, res) => {
   req.session.destroy((err) => {
     if (err) {

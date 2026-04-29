@@ -2,15 +2,30 @@
 require('dotenv').config();
 
 const express = require('express');
+const mongoose = require('mongoose');
+
 const { connectDB } = require('./config/database');
 const createSessionMiddleware = require('./config/session');
+const passport = require('./config/passport');
+
 const authRoutes = require('./routes/auth.routes');
+const passportRoutes = require('./routes/passport.routes');
 const protectedRoutes = require('./routes/protected.routes');
+
 
 const app = express();
 
 app.use(express.json());
 app.use(createSessionMiddleware());
+
+
+app.use(passport.initialize());
+app.use(passport.session());
+
+
+mongoose.connect(process.env.MONGODB_URI)
+  .then(() => console.log('✅ Mongoose conectado'))
+  .catch(err => console.log('❌ Error Mongoose:', err.message));
 
 
 app.get('/', (req, res) => {
@@ -21,12 +36,14 @@ app.get('/', (req, res) => {
   });
 });
 
-app.use('/api/auth', authRoutes);
-app.use('/api', protectedRoutes);
+app.use('/api/v1/auth', authRoutes);  // nueva collecion Posman
+app.use('/api/v1', protectedRoutes);
+app.use('/api/v1/passport', passportRoutes);
 
 const PORT = process.env.PORT || 3000;
 
 connectDB()
+
   .then(() => {
     app.listen(PORT, () => {
       console.log(`Servidor corriendo en http://localhost:${PORT}`);

@@ -2,13 +2,6 @@ const jwt = require('jsonwebtoken');
 
 function isAuthenticated(req, res, next) {
 
-  // 1. Verificar que exista sesión
-  if (!req.session || !req.session.user) {
-    return res.status(401).json({
-      error: 'No autenticado. Iniciá sesión.',
-    });
-  }
-
   // extrae el header del token , Busca el header
   const authHeader = req.headers['authorization'];
 
@@ -25,15 +18,11 @@ function isAuthenticated(req, res, next) {
   try { 
     const decoded = jwt.verify(token, process.env.JWT_SECRET); // verifica el token
 
-    //  Unifica usuario 
-    req.user = {
-      ...req.session.user, // sesion
-      ...decoded,  // guardás datos del token
-    };
+    req.user = decoded;  // guardás datos del token
 
     next();
 
-  } catch (err) {
+  } catch (error) {
 
     // destruir sesión si el token expiró
     req.session.destroy(() => {});

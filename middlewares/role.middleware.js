@@ -1,6 +1,7 @@
 function hasRole(allowedRoles) {
   return (req, res, next) => {
-    const user = req.session?.user;  
+    
+    const user = req.user; // 👈 YA NO session
 
     if (!user) {
       return res.status(401).json({  

@@ -39,9 +39,10 @@ function createSessionMiddleware() {
     resave: false,
     saveUninitialized: false,
     cookie: {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      maxAge: 1000 * 60 * 60,
+      sameSite: 'Strict',
+      httpOnly: true,  // la cookie no es accesible desde JavaScript del navegador | Protege contra ataques XSS (scripts maliciosos)
+      secure: process.env.NODE_ENV === 'production', // secure = solo con HTTPS
+      maxAge: 3600000 // 1 hora // Tiempo de vida
     },
   };
 

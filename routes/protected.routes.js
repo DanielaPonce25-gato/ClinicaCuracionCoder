@@ -9,7 +9,8 @@ const router = Router();
 // localhost:3000/api/plataforma
 // Solo requiere autenticación del rol admin
 router.get('/plataforma', isAuthenticated, hasRole(['admin']), (req, res) => {
-  const user = req.session.user;
+  
+  const user = req.user; // req.user viene de passport, contiene info del usuario autenticado 
 
   // Opciones disponibles para admin
   const options = [
@@ -20,9 +21,9 @@ router.get('/plataforma', isAuthenticated, hasRole(['admin']), (req, res) => {
   ];
 
   return res.json({
-    message: `Bienvenido a la plataforma, ${user.username}. Tu rol es: ${user.role}`,
+    message: `Bienvenido a la plataforma, tu correo es ${user.email}. Tu rol es: ${user.role}`,
     user: {
-      username: user.username,
+      email: user.email,
       role: user.role
     },
     options: options
@@ -36,11 +37,15 @@ router.get('/pacientes',
   hasRole(['admin', 'doctor', 'enfermero']),
   async (req, res) => {
     try {
+
       const pacientesCollection = getDB().collection('pacientes');
       const pacientes = await pacientesCollection.find({}).toArray();
 
+      const user = req.user;
+
       const pacientesFiltrados = pacientes.map(p => {
-        if (req.session.user.role  === 'admin') {
+
+        if (user.role  === 'admin') {
           return { id: p._id.toString(), ...p }; // ve todo
         }
 
@@ -56,7 +61,7 @@ router.get('/pacientes',
       });
 
       return res.json({
-        message: `Hola ${req.session.user.username}, acá están los pacientes.`,
+        message: `perfil  ${user.email}, acá están los pacientes.`,
         pacientes: pacientesFiltrados
       });
     } catch (error) {
@@ -67,7 +72,7 @@ router.get('/pacientes',
 
 
 // POST - crear paciente
-// localhost:3000/api/admin/pacientes
+// localhost:3000/api/v1/admin/pacientes
 router.post('/admin/pacientes',
   isAuthenticated,
   hasRole(['admin']),
@@ -115,7 +120,7 @@ router.post('/admin/pacientes',
 
 
 // PUT - Modificar paciente
-// localhost:3000/api/admin/pacientes/:id
+// localhost:3000/api/v1/admin/pacientes/:id
 
 const { ObjectId } = require('mongodb');
 
@@ -166,7 +171,7 @@ router.put('/admin/pacientes/:id', isAuthenticated, hasRole(['admin']), async (r
 });
 
 // DELETE - Eliminar paciente
-// localhost:3000/api/admin/pacientes/:id
+// localhost:3000/api/v1/admin/pacientes/:id
 router.delete('/admin/pacientes/:id', isAuthenticated, hasRole(['admin']), async (req, res) => {
   try {
     const { id } = req.params;
