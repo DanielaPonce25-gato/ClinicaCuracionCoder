@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Login Paciente</title>
+
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: Arial;
+      background: linear-gradient(135deg, #0f172a, #1e293b);
+    }
+
+    .login-box {
+      width: 360px;
+      background: white;
+      padding: 25px;
+      border-radius: 14px;
+      text-align: center;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+    }
+
+    h2 {
+      margin-bottom: 20px;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px;
+      margin-top: 12px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      margin-top: 12px;
+      background: #0f172a;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #1e293b;
+    }
+
+    #msg {
+      margin-top: 12px;
+      font-size: 14px;
+      color: #333;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="login-box">
+
+  <h2>Login Paciente</h2>
+
+  <!-- DNI -->
+  <input type="text" id="dni" placeholder="Ingrese su DNI">
+
+  <!-- GOOGLE BUTTON -->
+  <div id="g_id_onload"
+        data-client_id="TU_GOOGLE_CLIENT_ID"
+        data-callback="onGoogleLogin">
+  </div>
+
+  <div class="g_id_signin"></div>
+
+  <button onclick="enviarLogin()">Ingresar</button>
+
+  <div id="msg"></div>
+
+</div>
+
+<script>
+
+let googleCredential = null;
+
+// 1. Google login
+function onGoogleLogin(response) {
+    googleCredential = response.credential;
+
+    document.getElementById("msg").innerText =
+        "Google autenticado. Ahora ingresa tu DNI.";
+}
+
+// 2. Enviar login al backend
+function enviarLogin() {
+
+    const dni = document.getElementById("dni").value;
+    const msg = document.getElementById("msg");
+
+    if (!googleCredential) {
+        msg.innerText = "Primero inicia sesión con Google";
+        return;
+    }
+
+    if (!dni) {
+        msg.innerText = "Ingresa tu DNI";
+        return;
+    }
+
+    fetch("http://localhost:3000/api/v1/auth/login-google", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            credential: googleCredential,
+            dni: dni
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+
+        console.log(data);
+
+        if (data.ok) {
+            msg.innerText = "Login exitoso: " + data.user.email;
+        } else {
+            msg.innerText = data.error;
+        }
+
+    })
+    .catch(err => {
+        msg.innerText = "Error de conexión con el servidor";
+    });
+
+}
+
+</script>
+
+</body>
+</html>

@@ -7,6 +7,7 @@ const { allowedRoles } = require('../middlewares/roles');
 const passport = require('../config/passport');
 const User = require('../models/User');
 
+
 const router = Router();
 
 // El registro crea la cuenta del usuario en la base de datos, 
@@ -129,6 +130,8 @@ router.post('/logout', (req, res) => {
     }
 
     res.clearCookie('connect.sid');
+    res.clearCookie('token'); // Limpia el token del cliente
+    
     return res.json({ message: 'Sesion cerrada exitosamente.' });
   });
 

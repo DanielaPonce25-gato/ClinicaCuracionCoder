@@ -9,7 +9,7 @@ function isAuthenticated(req, res, next) {
   if (!authHeader || !authHeader.startsWith('Bearer ')) { // verifica el header 
   // ( || es token obligatorio , && token opcional)
     return res.status(401).json({
-      error: 'Token requerido.',
+      error: 'Token requerido. No autorizado.',
     });
   }
 

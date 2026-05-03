@@ -9,11 +9,16 @@ const createSessionMiddleware = require('./config/session');
 const passport = require('./config/passport');
 
 const authRoutes = require('./routes/auth.routes');
+const googleLoginRoutes = require('./routes/loginGooglePaciente.routes');
 const passportRoutes = require('./routes/passport.routes');
 const protectedRoutes = require('./routes/protected.routes');
+const medicalFollowUpRoutes = require('./routes/doctor/medical-follow-up.routes');
+
 
 
 const app = express();
+
+app.use(express.static('public'));
 
 app.use(express.json());
 app.use(createSessionMiddleware());
@@ -37,8 +42,11 @@ app.get('/', (req, res) => {
 });
 
 app.use('/api/v1/auth', authRoutes);  // nueva collecion Posman
+app.use('/api/v1/auth', googleLoginRoutes);
 app.use('/api/v1', protectedRoutes);
 app.use('/api/v1/passport', passportRoutes);
+app.use('/api/v1', medicalFollowUpRoutes);
+
 
 const PORT = process.env.PORT || 3000;
 
