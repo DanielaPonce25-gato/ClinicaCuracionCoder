@@ -72,7 +72,7 @@
 
   <!-- GOOGLE BUTTON -->
   <div id="g_id_onload"
-        data-client_id="TU_GOOGLE_CLIENT_ID"
+        data-client_id="1023211180795-eo8j0gbjp5j5bbmaj0ujt980od48tp6h.apps.googleusercontent.com"
         data-callback="onGoogleLogin">
   </div>
 
@@ -112,8 +112,9 @@ function enviarLogin() {
         return;
     }
 
-    fetch("http://localhost:3000/api/v1/auth/login-google", {
+    fetch("/api/v1/auth/login-google", {
         method: "POST",
+        credentials: "include",
         headers: {
             "Content-Type": "application/json"
         },

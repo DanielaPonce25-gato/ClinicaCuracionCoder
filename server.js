@@ -2,7 +2,9 @@
 require('dotenv').config();
 
 const express = require('express');
+const path = require('path');
 const mongoose = require('mongoose');
+const cors = require('cors');
 
 const { connectDB } = require('./config/database');
 const createSessionMiddleware = require('./config/session');
@@ -18,11 +20,17 @@ const medicalFollowUpRoutes = require('./routes/doctor/medical-follow-up.routes'
 
 const app = express();
 
-app.use(express.static('public'));
+
+app.use(cors({
+  origin: "http://localhost:3000",
+  credentials: true
+}));
+
 
 app.use(express.json());
 app.use(createSessionMiddleware());
 
+app.use(express.static(path.join(__dirname, 'public')));
 
 app.use(passport.initialize());
 app.use(passport.session());
