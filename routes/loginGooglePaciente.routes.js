@@ -4,7 +4,17 @@ const router = express.Router();
 const { OAuth2Client } = require('google-auth-library');
 const { getDB } = require('../config/database');
 
-const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+function escapeRegExp(value) {
+    return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+const googleClientId = process.env.GOOGLE_CLIENT_ID;
+
+if (!googleClientId) {
+    throw new Error('GOOGLE_CLIENT_ID no está configurado en las variables de entorno');
+}
+
+const client = new OAuth2Client(googleClientId);
 
 async function processGoogleLogin(req, res, credential, dni) {
     if (!credential || !dni) {
@@ -14,35 +24,54 @@ async function processGoogleLogin(req, res, credential, dni) {
     try {
         const ticket = await client.verifyIdToken({
             idToken: credential,
-            audience: process.env.GOOGLE_CLIENT_ID,
+            audience: googleClientId,
         });
 
         const payload = ticket.getPayload();
+
 
         if (!payload?.email) {
             return res.status(401).json({ error: 'Token inválido' });
         }
 
-        const email = payload.email.toLowerCase().trim();
+        const gmail = payload.email.toLowerCase().trim();
+
+        console.log("EMAIL GOOGLE:", gmail);
 
         const pacientesCollection = getDB().collection('pacientes');
-        const paciente = await pacientesCollection.findOne({ email });
+
+        // ✔ búsqueda correcta en Mongo (campo gmail)
+        const paciente = await pacientesCollection.findOne({
+            gmail: { $regex: new RegExp(`^${escapeRegExp(gmail)}$`, "i") }
+        });
+
+        console.log("PACIENTE ENCONTRADO:", paciente);
 
         if (!paciente) {
             return res.status(403).json({ error: 'No autorizado' });
         }
 
-        if (String(paciente.dni) !== String(dni)) {
+        if (String(paciente.dni).trim() !== String(dni).trim()) {
             return res.status(403).json({ error: 'DNI incorrecto' });
         }
 
+        // sesión
         req.session.user = {
             id: paciente._id.toString(),
-            email: paciente.email,
-            rol: 'paciente',
+            gmail: paciente.gmail,
+            dni: paciente.dni,
+            rol: 'paciente'
         };
 
-        return req.session.save((err) => {
+        const loginCollection = getDB().collection('PacientesLogins');
+
+        await loginCollection.insertOne({
+            userId: paciente._id,
+            gmail: paciente.gmail,
+            timestamp: new Date()
+        });
+
+        req.session.save((err) => {
             if (err) {
                 return res.status(500).json({ error: 'Error de sesión' });
             }
@@ -50,21 +79,26 @@ async function processGoogleLogin(req, res, credential, dni) {
             return res.json({
                 ok: true,
                 user: {
-                    email: paciente.email,
+                    gmail: paciente.gmail,
                     rol: 'paciente',
                 },
                 message: 'Login exitoso'
             });
         });
+
     } catch (error) {
-        console.error(error);
-        return res.status(401).json({ error: 'Login inválido' });
+        console.error('Error en login Google:', error);
+
+        return res.status(401).json({
+            error: 'Login inválido',
+            detail: error.message
+        });
     }
 }
 
-router.post('/login-google', async (req, res) => {
+router.post('/login-google', (req, res) => {
     const { credential, dni } = req.body;
-    return processGoogleLogin(req, res, credential, dni);
+    processGoogleLogin(req, res, credential, dni);
 });
 
 module.exports = router;

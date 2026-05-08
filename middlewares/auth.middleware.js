@@ -37,3 +37,5 @@ function isAuthenticated(req, res, next) {
 // (verifica si el usuario está logueado antes de permitir el acceso a rutas protegidas.)
 
 module.exports = { isAuthenticated };
+
+// Este método no es vulnerable a CSRF, pero el token suele estar accesible desde JS → mayor exposición a XSS

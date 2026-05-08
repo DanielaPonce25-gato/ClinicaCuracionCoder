@@ -39,7 +39,7 @@ function createSessionMiddleware() {
     resave: false,
     saveUninitialized: false,
     cookie: {
-      sameSite: 'Strict',
+      sameSite: 'Strict', // Protege contra ataques CSRF (Cross-Site Request Forgery)
       httpOnly: true,  // la cookie no es accesible desde JavaScript del navegador | Protege contra ataques XSS (scripts maliciosos)
       secure: process.env.NODE_ENV === 'production', // secure = solo con HTTPS
       maxAge: 3600000 // 1 hora // Tiempo de vida

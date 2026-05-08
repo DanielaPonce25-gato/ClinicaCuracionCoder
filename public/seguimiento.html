@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Seguimiento Médico</title>
+
+    <style>
+        body {
+            font-family: Arial;
+            background: #f4f6f9;
+            margin: 0;
+            padding: 20px;
+        }
+
+        #app {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,.1);
+            border-left: 5px solid #3498db;
+        }
+
+        h3 { margin-top: 0; color: #2c3e50; }
+        .section-title { margin-top: 20px; color: #2c3e50; }
+        .info { margin: 6px 0; }
+        .label { font-weight: bold; color: #34495e; }
+        .empty { color: gray; font-style: italic; }
+    </style>
+</head>
+
+<body>
+
+    <h1>📋 Historial de Seguimiento Médico</h1>
+
+    <div id="app">
+        <p class="empty">Cargando historial...</p>
+    </div>
+
+    <script>
+        async function cargarHistorial() {
+
+            const container = document.getElementById('app');
+
+            try {
+
+                const res = await fetch('/api/v1/seguimiento', {
+                    credentials: 'include'
+                });
+
+                const data = await res.json();
+
+                if (!res.ok) {
+                    container.innerHTML = `<p class="empty">${data.error || 'Error del servidor'}</p>`;
+                    return;
+                }
+
+                container.innerHTML = '';
+
+
+                const p = {
+                    nombre: data.paciente?.nombre || data.paciente?.first_name || '',
+                    apellido: data.paciente?.apellido || data.paciente?.last_name || '',
+                    dni: data.paciente?.dni || '',
+                    gmail: data.paciente?.gmail || data.paciente?.email || ''
+                };
+
+                const pacienteCard = document.createElement('div');
+                    pacienteCard.className = 'card';
+
+                    pacienteCard.innerHTML = `
+                        <h3>👤 Datos del Paciente</h3>
+                        <p class="info"><span class="label">Nombre:</span> ${p.nombre} ${p.apellido}</p>
+                        <p class="info"><span class="label">DNI:</span> ${p.dni}</p>
+                        <p class="info"><span class="label">Email:</span> ${p.gmail}</p>
+                    `;
+
+                container.appendChild(pacienteCard);
+
+
+
+                const title = document.createElement('h2');
+                    title.className = 'section-title';
+                    title.textContent = '📋 Seguimientos médicos';
+                
+                container.appendChild(title);
+
+                const seguimientos = data.seguimientos || [];
+
+                if (!seguimientos.length) {
+                    container.innerHTML += `<p class="empty">No hay seguimientos registrados.</p>`;
+                    return;
+                }
+
+                seguimientos.forEach(seg => {
+
+                    const card = document.createElement('div');
+                        card.className = 'card';
+
+                    const doctorNombre =
+                        seg.doctor?.nombre ||
+                        seg.doctor?.first_name ||
+                    '';
+
+                    const doctorApellido =
+                        seg.doctor?.apellido ||
+                        seg.doctor?.last_name ||
+                    '';
+
+                    card.innerHTML = `
+                        <h3>🩺 Seguimiento</h3>
+
+                        <p class="info"><span class="label">Fecha:</span> ${
+                            seg.fecha ? new Date(seg.fecha).toLocaleDateString('es-AR') : ''
+                        }</p>
+
+                        <p class="info"><span class="label">Diagnóstico:</span> ${seg.diagnostico || ''}</p>
+                        <p class="info"><span class="label">Tratamiento:</span> ${seg.tratamiento || ''}</p>
+                        <p class="info"><span class="label">Notas:</span> ${seg.notas || ''}</p>
+
+                        <hr>
+
+                        <p class="info"><span class="label">Doctor:</span> ${doctorNombre} ${doctorApellido}</p>
+                        <p class="info"><span class="label">Email:</span> ${seg.doctor?.email || ''}</p>
+                    `;
+
+                    container.appendChild(card);
+                });
+
+            } catch (err) {
+                console.error(err);
+                container.innerHTML = `<p class="empty">Error cargando historial.</p>`;
+            }
+        }
+
+        cargarHistorial();
+
+    </script>
+
+</body>
+</html>

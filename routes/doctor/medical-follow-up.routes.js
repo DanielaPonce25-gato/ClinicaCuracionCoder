@@ -1,6 +1,7 @@
 const express = require('express');
 const { ObjectId } = require('mongodb'); // para validar los id de mongo
 const { getDB } = require('../../config/database');
+
 const { isAuthenticated } = require('../../middlewares/auth.middleware');
 const { hasRole } = require('../../middlewares/role.middleware');
 
@@ -201,6 +202,106 @@ router.get('/doctor/seguimiento/:pacienteId',
         }
 });
 
+
+// busca el historial de seguimientos del paciente con su dni
+router.get('/seguimiento', async (req, res) => {
+
+    try {
+
+        // verifica que el usuario esté autenticado y tenga rol de paciente
+        if (!req.session.user || req.session.user.rol !== 'paciente') { 
+            return res.status(401).json({ error: 'No autenticado' });
+        }
+        
+        // verifica que el paciente tenga un dni registrado
+        if (!req.session.user.dni) {
+            return res.status(400).json({ error: 'DNI no disponible' });
+        }
+
+    
+        const db = getDB(); // obtiene la base de datos  
+
+        const dni = String(req.session.user.dni).trim(); // convierte el dni a string y elimina espacios
+
+        // obtiene el dni del paciente en la colección de pacientes
+        const paciente = await db.collection('pacientes').findOne({ dni }); 
+
+        if (!paciente) {
+            return res.status(404).json({ error: 'Paciente no encontrado' });
+        }
+
+        // obtiene el historial del paciente odenado por fecha descendente
+        const seguimientos = await db.collection('seguimientos')
+            .find({ pacienteId: paciente._id })  // Obtiene el id del paciente por el dni registrado en la sesión
+            .sort({ fecha: -1 })
+            .toArray();
+
+
+
+        // obtiene los ids de los doctores que realizaron los seguimientos
+        const doctorIds = [
+            ...new Set(
+                seguimientos
+                    .map(s => s.doctorId) 
+                    .filter(Boolean)  
+                    .map(id => typeof id === 'string' ? new ObjectId(id) : id) 
+            )
+        ];
+
+        // obtiene los datos del doctor basado por su id
+        const doctors = doctorIds.length
+            ? await db.collection('users') // busca en la colección de usuarios para obtener los datos 
+                .find({ _id: { $in: doctorIds } }) 
+                .toArray() 
+            : [];
+
+        const doctorsMap = Object.fromEntries( 
+            doctors.map(doc => [doc._id.toString(), doc]) 
+        );
+
+
+        const historial = seguimientos.map(seg => {
+
+            // mapa crado para acceder a los datos del doctor por su id
+            const doctor = doctorsMap[seg.doctorId?.toString()] || {};  
+
+            return {  // inyecta los datos almacenados en la base de datos
+                id: seg._id,
+                fecha: seg.fecha,
+                diagnostico: seg.diagnostico || '',
+                tratamiento: seg.tratamiento || '',
+                notas: seg.notas || '',
+                motivo: seg.motivo || '',
+
+                doctor: { 
+                    nombre: doctor.nombre || doctor.first_name || '',
+                    apellido: doctor.apellido || doctor.last_name || '',
+                    email: doctor.email || ''
+                }
+            };
+        });
+
+
+        return res.json({
+            paciente: {
+                nombre: paciente.nombre || paciente.first_name || '',
+                apellido: paciente.apellido || paciente.last_name || '',
+                dni: paciente.dni || '',
+                edad: paciente.edad || '',
+                gmail: paciente.gmail || paciente.email || ''
+            },
+            seguimientos: historial
+        });
+
+    } catch (error) {
+
+        console.error('ERROR SEGUIMIENTO:', error);
+
+        return res.status(500).json({
+            error: 'Error servidor'
+        });
+    }
+});
 
 
 module.exports = router;

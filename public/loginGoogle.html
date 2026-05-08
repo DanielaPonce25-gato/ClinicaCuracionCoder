@@ -63,6 +63,7 @@
 
 <body>
 
+
 <div class="login-box">
 
   <h2>Login Paciente</h2>
@@ -129,7 +130,8 @@ function enviarLogin() {
         console.log(data);
 
         if (data.ok) {
-            msg.innerText = "Login exitoso: " + data.user.email;
+            msg.innerText = "Login exitoso: " + data.user.gmail;
+            window.location.href = "/seguimiento.html"; // Redirigir a seguimiento
         } else {
             msg.innerText = data.error;
         }

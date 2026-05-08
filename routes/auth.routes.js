@@ -96,7 +96,8 @@ router.post('/login', async (req, res) => {
         role: user.role,
       },
       process.env.JWT_SECRET,
-      { expiresIn: '1h' } // el tiempo de expiracion del token
+      { 
+        expiresIn: '1h'} 
     );
 
     // Guarda sesión

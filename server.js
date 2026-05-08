@@ -12,6 +12,7 @@ const passport = require('./config/passport');
 
 const authRoutes = require('./routes/auth.routes');
 const googleLoginRoutes = require('./routes/loginGooglePaciente.routes');
+
 const passportRoutes = require('./routes/passport.routes');
 const protectedRoutes = require('./routes/protected.routes');
 const medicalFollowUpRoutes = require('./routes/doctor/medical-follow-up.routes');
@@ -57,6 +58,7 @@ app.use('/api/v1', medicalFollowUpRoutes);
 
 
 const PORT = process.env.PORT || 3000;
+
 
 connectDB()
 
