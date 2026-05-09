@@ -49,6 +49,12 @@ router.post('/passport-login',
             }
         );
 
+        res.cookie('token', token, {
+            httpOnly: true,
+            sameSite: 'strict',
+            secure: process.env.NODE_ENV === 'production',
+        });
+
         res.json({
             message: 'Login exitoso',
             user,

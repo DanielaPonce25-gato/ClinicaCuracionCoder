@@ -16,6 +16,7 @@ function isAuthenticated(req, res, next) {
   const token = authHeader.split(' ')[1]; // lo separa Bearer TOKEN
 
   try { 
+    
     const decoded = jwt.verify(token, process.env.JWT_SECRET); // verifica el token
 
     req.user = decoded;  // guardás datos del token

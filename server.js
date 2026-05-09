@@ -8,7 +8,9 @@ const cors = require('cors');
 
 const { connectDB } = require('./config/database');
 const createSessionMiddleware = require('./config/session');
-const passport = require('./config/passport');
+
+//extrategia de header para verificar el token en cada peticion
+const passport = require('./config/passport'); 
 
 const authRoutes = require('./routes/auth.routes');
 const googleLoginRoutes = require('./routes/loginGooglePaciente.routes');

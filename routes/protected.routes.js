@@ -170,6 +170,7 @@ router.put('/admin/pacientes/:id', isAuthenticated, hasRole(['admin']), async (r
   }
 });
 
+
 // DELETE - Eliminar paciente
 // localhost:3000/api/v1/admin/pacientes/:id
 router.delete('/admin/pacientes/:id', isAuthenticated, hasRole(['admin']), async (req, res) => {

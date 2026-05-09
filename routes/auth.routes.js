@@ -97,8 +97,15 @@ router.post('/login', async (req, res) => {
       },
       process.env.JWT_SECRET,
       { 
-        expiresIn: '1h'} 
+        expiresIn: '1h', // tiempo de expiración del token
+      }
     );
+
+    res.cookie('token', token, {
+      httpOnly: true, // Solo accesible por HTTP, no JavaScript
+      sameSite: 'strict', // protege contra CSRF
+      secure: process.env.NODE_ENV === 'production', 
+    });
 
     // Guarda sesión
     req.session.user = {
