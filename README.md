@@ -4,7 +4,10 @@ Este proyecto es una API REST desarrollada con Node.js y Express que permite adm
 
 Los usuarios pueden registrarse, iniciar sesión y acceder a diferentes funcionalidades según su rol. El administrador tiene permisos completos (crear, editar y eliminar pacientes), mientras que doctor y enfermero pueden consultar información basica de los pacientes con acceso limitado.
 
-Además, el proyecto utiliza MongoDB como base de datos y bcrypt para el cifrado de contraseñas, asegurando una gestión segura de los datos.
+
+Además, el proyecto utiliza MongoDB como base de datos, Mongoose como ODM y bcrypt para el cifrado de contraseñas, asegurando una gestión segura de los datos.
+
+También se incluye autenticación con Google OAuth para pacientes.
 
 ## Objetivo
 
@@ -18,6 +21,11 @@ JWT para validación de usuarios
 Sesiones para mantener el login
 bcrypt para el cifrado de contraseñas
 Middleware de autenticación y autorización
+
+Protección contra accesos no autorizados (roles)
+
+Cookies seguras (httpOnly, sameSite, secure)
+
 
 ## Roles de Usuario
 
@@ -70,7 +78,7 @@ ClinicaCuracionCoder/
 | POST   | `/api/admin/pacientes`     | Crear paciente             | Solo `admin`                          |
 | PUT    | `/api/admin/pacientes/:id` | Modificar paciente         | Solo `admin`                          |
 | DELETE | `/api/admin/pacientes/:id` | Eliminar paciente          | Solo `admin`                          |
-
+POST	/api/google/login-google	Login Google paciente	OAuth
 
 ### Ejemplos de request body
 
