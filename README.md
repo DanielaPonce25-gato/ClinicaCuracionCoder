@@ -78,7 +78,7 @@ ClinicaCuracionCoder/
 | POST   | `/api/admin/pacientes`     | Crear paciente             | Solo `admin`                          |
 | PUT    | `/api/admin/pacientes/:id` | Modificar paciente         | Solo `admin`                          |
 | DELETE | `/api/admin/pacientes/:id` | Eliminar paciente          | Solo `admin`                          |
-POST	/api/google/login-google	Login Google paciente	OAuth
+
 
 ### Ejemplos de request body
 
