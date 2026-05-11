@@ -49,14 +49,31 @@ Eliminación de pacientes (admin)
 ClinicaCuracionCoder/
 ├── config/
 │   ├── database.js          # Conexion a MongoDB
+│   ├── mongoose.js          # Conexión con Mongoose
+│   ├── passport.js          # Configuración de Passport
 │   └── session.js           # Configuracion de express-session y stores
+│
+├── models/
+│   └── User.js              # Modelo de usuario
+│
 ├── middlewares/
 │   ├── auth.middleware.js    # Middleware isAuthenticated
 │   └── role.middleware.js    # Middleware hasRole (autorizacion por rol)
-    └── role.middleware.js    # Middleware Role (roles permitidos)
+│   └── role.middleware.js    # Middleware Role (roles permitidos)
+│
 ├── routes/
 │   ├── auth.routes.js       # Registro, login y logout
+│   ├── passport.routes.js   # Login con Passport
+│   ├── loginGooglePaciente.routes.js # OAuth Google para Pacientes
 │   └── protected.routes.js  # Rutas protegidas (/pacientes, /admin/pacientes)
+│   └── doctor/
+│       └── medical-follow-up.routes.js # Ruta protegida 
+│
+├── strategies/
+│   ├── jwt.strategy.js
+│   └── local.strategy.js
+│
+│
 ├── .env.example             # Plantilla de variables de entorno
 ├── .gitignore
 ├── package.json
@@ -77,7 +94,8 @@ ClinicaCuracionCoder/
 | GET | `/api/admin` | Panel de administracion | Requiere sesion + token y rol `admin` |
 | POST   | `/api/admin/pacientes`     | Crear paciente             | Solo `admin`                          |
 | PUT    | `/api/admin/pacientes/:id` | Modificar paciente         | Solo `admin`                          |
-| DELETE | `/api/admin/pacientes/:id` | Eliminar paciente          | Solo `admin`                          |
+| DELETE | `/api/admin/pacientes/:id` | Eliminar paciente          | Solo `admin`  
+                        |
 
 
 ### Ejemplos de request body

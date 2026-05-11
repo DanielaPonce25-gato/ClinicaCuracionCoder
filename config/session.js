@@ -4,8 +4,9 @@ function getStore() {
   const storeType = process.env.SESSION_STORE || 'memory';
 
   switch (storeType) {
+    
     case 'file': {
-      const FileStore = require('session-file-store')(session);
+      const FileStore = require('session-file-store')(session);  
       console.log('Usando session-file-store (archivos en disco)');
       return new FileStore({ path: './sessions', ttl: 3600 });
     }
