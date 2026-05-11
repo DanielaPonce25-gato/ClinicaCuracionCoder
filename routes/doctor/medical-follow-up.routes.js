@@ -274,8 +274,8 @@ router.get('/seguimiento', async (req, res) => {
                 motivo: seg.motivo || '',
 
                 doctor: { 
-                    nombre: doctor.nombre || doctor.first_name || '',
-                    apellido: doctor.apellido || doctor.last_name || '',
+                    nombre: doctor.first_name || '',
+                    apellido: doctor.last_name || '',
                     email: doctor.email || ''
                 }
             };

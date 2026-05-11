@@ -1,25 +1,60 @@
 const jwt = require('jsonwebtoken');
+const User = require('../models/User'); 
 
-function isAuthenticated(req, res, next) {
+
+function getToken(req) {
+
+  // extrae el token de la cookie, si existe
+  const cookieToken = req.cookies?.token;
 
   // extrae el header del token , Busca el header
   const authHeader = req.headers['authorization'];
+  const headerToken =
+    
+  authHeader && authHeader.startsWith('Bearer ') // verifica el header , && token opcional
+  ? authHeader.split(' ')[1] // lo separa Bearer TOKEN
+  : null;
+
+  return cookieToken || headerToken; // da prioridad al token de la cookie, si no existe, usa el del header
+}
 
 
-  if (!authHeader || !authHeader.startsWith('Bearer ')) { // verifica el header 
-  // ( || es token obligatorio , && token opcional)
+
+async function isAuthenticated(req, res, next) {
+
+  const token = getToken(req); // obtiene el token de la cookie o del header
+  
+  if (!token) { // verifica si hay token
     return res.status(401).json({
       error: 'Token requerido. No autorizado.',
     });
+
   }
-
-  const token = authHeader.split(' ')[1]; // lo separa Bearer TOKEN
-
+  
   try { 
     
     const decoded = jwt.verify(token, process.env.JWT_SECRET); // verifica el token
 
-    req.user = decoded;  // guardás datos del token
+    if (!decoded?.userId) return res.status(401).json({ error: 'Token inválido' });
+
+    // verifica que el usuario exista en la base de datos 
+    const user = await User.findById(decoded.userId);
+
+    if (!user) {
+      return res.status(401).json({
+        error: 'Usuario no válido o eliminado.',
+      });
+    }
+
+    // abjunta la informacion del usuario desde el token 
+    // al objeto req para que esté disponible en las rutas protegidas
+
+    req.user = {
+      userId: user._id,
+      email: user.email,
+      role: user.role,
+    };
+
 
     next();
 

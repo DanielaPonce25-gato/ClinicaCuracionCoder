@@ -59,7 +59,7 @@ router.post('/register', async (req, res) => {
     
   } catch (error) {
     console.error('Error en /register:', error);
-    return res.status(500).json({ error: 'Error interno del servidor.' });
+    return res.status(500).json({ error: 'Error interno del servidor. En registro' });
   }
 });
 
@@ -114,16 +114,14 @@ router.post('/login', async (req, res) => {
       role: user.role,
     };
 
-    return res.json({
-      message: 'Login exitoso.',
-      user: req.session.user,
-      token, 
+    res.json({
+      message: 'Login exitoso'
     });
     
 
   } catch (error) {
     console.error('Error en /login:', error);
-    return res.status(500).json({ error: 'Error interno del servidor.' });
+    return res.status(500).json({ error: 'Error interno del servidor. En login' });
   }
 });
 

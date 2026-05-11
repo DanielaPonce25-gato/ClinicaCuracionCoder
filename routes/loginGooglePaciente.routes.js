@@ -45,7 +45,7 @@ async function processGoogleLogin(req, res, credential, dni) {
             gmail: { $regex: new RegExp(`^${escapeRegExp(gmail)}$`, "i") }
         });
 
-        console.log("PACIENTE ENCONTRADO:", paciente);
+        console.log("PACIENTE ENCONTRADO:");
 
         if (!paciente) {
             return res.status(403).json({ error: 'No autorizado' });
@@ -73,7 +73,7 @@ async function processGoogleLogin(req, res, credential, dni) {
 
         req.session.save((err) => {
             if (err) {
-                return res.status(500).json({ error: 'Error de sesión' });
+                return res.status(500).json({ error: 'error interno. Error de sesión' });
             }
 
             return res.json({

@@ -36,7 +36,7 @@ function createSessionMiddleware() {
   const store = getStore();
 
   const sessionConfig = {
-    secret: process.env.SESSION_SECRET || 'secreto_por_defecto',
+    secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
     cookie: {
