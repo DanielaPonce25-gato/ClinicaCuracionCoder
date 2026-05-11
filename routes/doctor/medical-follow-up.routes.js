@@ -236,15 +236,14 @@ router.get('/seguimiento', async (req, res) => {
             .sort({ fecha: -1 })
             .toArray();
 
-
-
+            
         // obtiene los ids de los doctores que realizaron los seguimientos
         const doctorIds = [
             ...new Set(
                 seguimientos
                     .map(s => s.doctorId) 
                     .filter(Boolean)  
-                    .map(id => typeof id === 'string' ? new ObjectId(id) : id) 
+                    .map(id => new ObjectId(id.toString()))
             )
         ];
 

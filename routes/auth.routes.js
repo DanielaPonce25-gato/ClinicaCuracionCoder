@@ -1,12 +1,18 @@
 const { Router } = require('express');
-const jwt = require('jsonwebtoken');
+
 const bcrypt = require('bcrypt');
+
 const { getDB } = require('../config/database');
 const { allowedRoles } = require('../middlewares/roles');
 
 const passport = require('../config/passport');
 const User = require('../models/User');
 
+const {
+  generateAccessToken,
+  generateRefreshToken,
+  verifyRefreshToken
+} = require('../config/jwt');
 
 const router = Router();
 
@@ -88,20 +94,22 @@ router.post('/login', async (req, res) => {
       return res.status(401).json({ error: 'Credenciales invalidas.' });
     }
 
+    // ACCESS TOKEN
+    const token = generateAccessToken(user);
+
+    // REFRESH TOKEN
+    const refreshToken = generateRefreshToken(user);
+
+
     // Crear token
-    const token = jwt.sign(  // sign genera el token, recibe la informacion 
-      {
-        userId: user._id,
-        email: user.email,
-        role: user.role,
-      },
-      process.env.JWT_SECRET,
-      { 
-        expiresIn: '1h', // tiempo de expiración del token
-      }
-    );
 
     res.cookie('token', token, {
+      httpOnly: true, // Solo accesible por HTTP, no JavaScript
+      sameSite: 'strict', // protege contra CSRF
+      secure: process.env.NODE_ENV === 'production', 
+    });
+
+    res.cookie('refreshToken', refreshToken, {
       httpOnly: true, // Solo accesible por HTTP, no JavaScript
       sameSite: 'strict', // protege contra CSRF
       secure: process.env.NODE_ENV === 'production', 

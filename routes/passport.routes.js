@@ -4,8 +4,14 @@ const router = Router();
 
 const User = require('../models/User');
 const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
+
 const passport = require('../config/passport');
+
+const {
+    generateAccessToken,
+    generateRefreshToken,
+    verifyRefreshToken
+} = require('../config/jwt');
 
 
 router.post('/passport-register', async (req, res) => {
@@ -38,22 +44,25 @@ router.post('/passport-login',
         try {
             const user = req.user;
 
-            const token = jwt.sign(
-                {
-                    userId: user._id,
-                    email: user.email,
-                    role: user.role
-                },
-                process.env.JWT_SECRET,
-                { 
-                    expiresIn: '1h', // tiempo de expiración del token
-                }
-            );
+            // ACCESS TOKEN
+            const token = generateAccessToken(user);
+
+            // REFRESH TOKEN
+            const refreshToken = generateRefreshToken(user);
+
+
+            // Crear token
 
             res.cookie('token', token, {
-                httpOnly: true,
-                sameSite: 'strict',
-                secure: process.env.NODE_ENV === 'production',
+                httpOnly: true, // Solo accesible por HTTP, no JavaScript
+                sameSite: 'strict', // protege contra CSRF
+                secure: process.env.NODE_ENV === 'production', 
+            });
+
+            res.cookie('refreshToken', refreshToken, {
+                httpOnly: true, // Solo accesible por HTTP, no JavaScript
+                sameSite: 'strict', // protege contra CSRF
+                secure: process.env.NODE_ENV === 'production', 
             });
 
             res.json({
