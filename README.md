@@ -30,6 +30,7 @@ Cookies seguras (httpOnly, sameSite, secure)
 ## Roles de Usuario
 
 admin: acceso total (crear, editar, eliminar y ver pacientes)
+doctor: acceso total (crear, editar el Historial clinico)
 doctor: acceso a listado de pacientes con información limitada
 enfermero: acceso a listado de pacientes con información limitada
 
@@ -43,6 +44,8 @@ Listado de pacientes según su rol
 Creación de pacientes (admin)
 Edición de pacientes (admin)
 Eliminación de pacientes (admin)
+Creación de Historial clinico (doctor)
+Edición de Historial clinico (doctor)
 
 ## Estructura del proyecto
 ```
@@ -52,6 +55,14 @@ ClinicaCuracionCoder/
 │   ├── mongoose.js          # Conexión con Mongoose
 │   ├── passport.js          # Configuración de Passport
 │   └── session.js           # Configuracion de express-session y stores
+│
+├── controllers/
+│   ├── auth.controller.js          
+│   ├── doctor.controller.js          
+│   ├── google.controller.js          
+│   ├── passport.controller.js          
+│   └── platform.controller.js           
+│
 │
 ├── models/
 │   └── User.js              # Modelo de usuario
@@ -88,14 +99,18 @@ ClinicaCuracionCoder/
 |---|---|---|---|
 | GET | `/` | Healthcheck del servidor | Ninguna |
 | POST | `/api/auth/register` | Registrar un usuario nuevo | Ninguna |
-| POST | `/api/auth/login` | Iniciar sesion | Genera token del usuario |
+| POST | `/api/auth/login` | Iniciar sesion | Genera token del usuario | Genera Refresh Token
 | POST | `/api/auth/logout` | Cerrar sesion | Destruye token |
+| POST | `/api/v1/passport/passport-register` | Registrar un usuario nuevo | Ninguna |
+| POST | `/api/v1/passport/passport-login` | Iniciar sesion | Genera token del usuario | Genera Refresh Token
 | GET | `/api/pacientes` | Listar pacientes | Requiere sesion | Requiere token|
 | GET | `/api/admin` | Panel de administracion | Requiere sesion + token y rol `admin` |
 | POST   | `/api/admin/pacientes`     | Crear paciente             | Solo `admin`                          |
 | PUT    | `/api/admin/pacientes/:id` | Modificar paciente         | Solo `admin`                          |
 | DELETE | `/api/admin/pacientes/:id` | Eliminar paciente          | Solo `admin`  
-                        |
+| POST   | `/api/v1/doctor/seguimiento/:pacienteId`     | Crear historia Crinica           | Solo `doctor`                          |
+| PUT    | `/api/admin/pacientes/:id` | Modificar paciente         | Solo `doctor`                          |
+| GET | `/api/v1/doctor/seguimiento/:pacienteId` | Para ver el historial crinico         | Pueden ver  `doctor, enfermero, admin`   |
 
 
 ### Ejemplos de request body
@@ -138,10 +153,14 @@ POST /api/auth/login
    - **Admin crea Paciente** - Probar acceso de admin (va a fallar si el usuario no tiene rol `admin`)
    - **Admin actualiza Paciente** - Probar acceso de admin (va a fallar si el usuario no tiene rol `admin`)
    - **Admin elimina Paciente** - Probar acceso de admin (va a fallar si el usuario no tiene rol `admin`)
+   - **Doctor crea Historial clinico** - Probar acceso de doctor (va a fallar si el usuario no tiene rol `doctor`)
+   - **Doctor actualiza Historial clinico** - Probar acceso de doctor (va a fallar si el usuario no tiene rol `doctor`)
+   - **El Doctor, Admin, enfermero pueden ver al Paciente** - Pueden ver al paciente por su id (va a fallar si el usuario no tiene ninguno de estos roles)
+   - **El Doctor, Admin, enfermero pueden ver el Historial clinico** - Pueden ver el Historial clinico por el id del paciente (va a fallar si el usuario no tiene ninguno de estos roles)
    - **Logout** - Cerrar sesion y destruye token
-   - **Pacientes** - Intentar de nuevo (va a fallar porque ya no hay sesion y no hay token)
+   - **Pacientes** - No podra aceder ninguna de estas rutas. Pero podra ver su Historial clinico, una ves que se aya logueado por Google.
 
-> **Tip:** Postman maneja las cookies automaticamente. Despues del login, la cookie `connect.sid` se envia en cada request.
+> **Tip:** Postman maneja las cookies y el token automaticamente. Despues del login, la cookie `connect.sid` se envia en cada request.
 
 ## Tipos de Session Store
 
@@ -172,3 +191,12 @@ El proyecto soporta 3 formas de almacenar las sesiones. Se configura con la vari
 - [connect-mongo](https://www.npmjs.com/package/connect-mongo) - Almacenamiento de sesiones en MongoDB
 - [session-file-store](https://www.npmjs.com/package/session-file-store) - Almacenamiento de sesiones en archivos
 - [dotenv](https://www.npmjs.com/package/dotenv) - Manejo de variables de entorno
+- [passport](https://www.npmjs.com/package/passport) - Middleware de autenticación para Express.
+- [passport-local](https://www.passportjs.org/packages/passport-local/) - Estrategia de login con usuario y contraseña.
+- [passport-jwt](https://www.passportjs.org/packages/passport-jwt/) - Estrategia de autenticación mediante JWT.
+- [google-auth-library](https://www.npmjs.com/package/google-auth-library) - Integración con autenticación de Google.
+
+# Configuración y utilidades
+
+- [dotenv](https://www.npmjs.com/package/dotenv) - Manejo de variables de entorno desde .env.
+- [cors](https://www.npmjs.com/package/cors) - Permite peticiones entre distintos dominios/frontend-backend.

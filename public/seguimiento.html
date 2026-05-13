@@ -103,15 +103,9 @@
                     const card = document.createElement('div');
                         card.className = 'card';
 
-                    const doctorNombre =
-                        seg.doctor?.nombre ||
-                        seg.doctor?.first_name ||
-                    '';
+                            const doctorNombre = seg.doctor?.nombre || seg.doctor?.first_name || '';
+                            const doctorApellido = seg.doctor?.apellido || seg.doctor?.last_name || '';
 
-                    const doctorApellido =
-                        seg.doctor?.apellido ||
-                        seg.doctor?.last_name ||
-                    '';
 
                     card.innerHTML = `
                         <h3>🩺 Seguimiento</h3>
@@ -126,7 +120,7 @@
 
                         <hr>
 
-                        <p class="info"><span class="label">Doctor:</span> ${doctorNombre} ${doctorApellido}</p>
+                        <p class="info"><span class="label">Doctor:</span> ${seg.doctorApellido} ${seg.doctorApellido}</p>
                         <p class="info"><span class="label">Email:</span> ${seg.doctor?.email || ''}</p>
                     `;
 
