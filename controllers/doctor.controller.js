@@ -125,7 +125,6 @@ async function updateSeguimiento(req, res) {
             return res.status(400).json({ error: 'No hay datos para actualizar.' });
         }
 
-
         // sube datos al seguimiento
         if (Object.keys(updateFields).length > 0) {
             await seguimientoCollection.updateOne(
@@ -221,7 +220,7 @@ async function getHistorialPaciente(req, res) {
 
         // obtiene el historial del paciente odenado por fecha descendente
         const seguimientos = await db.collection('seguimientos')
-            .find({ pacienteId: paciente._id })  // Obtiene el id del paciente por el dni registrado en la sesión
+            .find({ pacienteId: paciente._id })  
             .sort({ fecha: -1 })
             .toArray();
 

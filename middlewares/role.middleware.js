@@ -1,4 +1,4 @@
-function hasRole(allowedRoles) {
+function hasRole(allowedRoles) { 
   return (req, res, next) => {
     
     const user = req.user; 

@@ -52,6 +52,7 @@ Edición de Historial clinico (doctor)
 ClinicaCuracionCoder/
 ├── config/
 │   ├── database.js          # Conexion a MongoDB
+│   └── jwt.js               # Gestiona la generación y validación de JSON Web Tokens. 
 │   ├── mongoose.js          # Conexión con Mongoose
 │   ├── passport.js          # Configuración de Passport
 │   └── session.js           # Configuracion de express-session y stores
