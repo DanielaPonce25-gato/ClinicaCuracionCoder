@@ -38,33 +38,33 @@ async function register(req, res) {
 
 function login(req, res) {
 
-        try {
-            const user = req.user;
+    try {
+        const user = req.user;
 
-            // ACCESS TOKEN
-            const token = generateAccessToken(user);
+        // ACCESS TOKEN
+        const token = generateAccessToken(user);
 
-            // REFRESH TOKEN
-            const refreshToken = generateRefreshToken(user);
+        // REFRESH TOKEN
+        const refreshToken = generateRefreshToken(user);
 
 
-            // Crear token
+        // Crear token
 
-            res.cookie('token', token, {
-                httpOnly: true, // Solo accesible por HTTP, no JavaScript
-                sameSite: 'strict', // protege contra CSRF
-                secure: process.env.NODE_ENV === 'production', 
-            });
+        res.cookie('token', token, {
+            httpOnly: true, // Solo accesible por HTTP, no JavaScript
+            sameSite: 'strict', // protege contra CSRF
+            secure: process.env.NODE_ENV === 'production', 
+        });
 
-            res.cookie('refreshToken', refreshToken, {
-                httpOnly: true, // Solo accesible por HTTP, no JavaScript
-                sameSite: 'strict', // protege contra CSRF
-                secure: process.env.NODE_ENV === 'production', 
-            });
+        res.cookie('refreshToken', refreshToken, {
+            httpOnly: true, // Solo accesible por HTTP, no JavaScript
+            sameSite: 'strict', // protege contra CSRF
+            secure: process.env.NODE_ENV === 'production', 
+        });
 
-            res.json({
-                message: 'Login exitoso'
-            });
+        res.json({
+            message: 'Login exitoso'
+        });
 
     } catch (error) {
         console.error(error);

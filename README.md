@@ -57,6 +57,7 @@ ClinicaCuracionCoder/
 │   ├── passport.js          # Configuración de Passport
 │   └── session.js           # Configuracion de express-session y stores
 │
+│
 ├── controllers/
 │   ├── auth.controller.js          
 │   ├── doctor.controller.js          
@@ -68,10 +69,12 @@ ClinicaCuracionCoder/
 ├── models/
 │   └── User.js              # Modelo de usuario
 │
+│
 ├── middlewares/
 │   ├── auth.middleware.js    # Middleware isAuthenticated
 │   └── role.middleware.js    # Middleware hasRole (autorizacion por rol)
 │   └── role.middleware.js    # Middleware Role (roles permitidos)
+│
 │
 ├── routes/
 │   ├── auth.routes.js       # Registro, login y logout
@@ -80,6 +83,12 @@ ClinicaCuracionCoder/
 │   └── protected.routes.js  # Rutas protegidas (/pacientes, /admin/pacientes)
 │   └── doctor/
 │       └── medical-follow-up.routes.js # Ruta protegida 
+│
+│
+├── public/
+│   ├── loginGoogle.html
+│   ├── seguimiento.html
+│
 │
 ├── strategies/
 │   ├── jwt.strategy.js
@@ -110,7 +119,7 @@ ClinicaCuracionCoder/
 | PUT    | `/api/admin/pacientes/:id` | Modificar paciente         | Solo `admin`                          |
 | DELETE | `/api/admin/pacientes/:id` | Eliminar paciente          | Solo `admin`  
 | POST   | `/api/v1/doctor/seguimiento/:pacienteId`     | Crear historia Crinica           | Solo `doctor`                          |
-| PUT    | `/api/admin/pacientes/:id` | Modificar paciente         | Solo `doctor`                          |
+| PUT    | `/api/v1/doctor/seguimiento/:id` | Modificar paciente         | Solo `doctor`                          |
 | GET | `/api/v1/doctor/seguimiento/:pacienteId` | Para ver el historial crinico         | Pueden ver  `doctor, enfermero, admin`   |
 
 
