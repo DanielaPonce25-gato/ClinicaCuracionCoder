@@ -10,7 +10,7 @@ const generateAccessToken = (user) => {
         },
         process.env.JWT_SECRET,
         {
-            expiresIn: '2m'
+            expiresIn: '1m'
         }
     );
 };
@@ -25,7 +25,7 @@ const generateRefreshToken = (user) => {
         },
         process.env.JWT_REFRESH_SECRET,
         {
-            expiresIn: '10m'
+            expiresIn: '5m'
         }
     );
 };
@@ -33,7 +33,11 @@ const generateRefreshToken = (user) => {
 // VERIFY REFRESH TOKEN
 const verifyRefreshToken = (token) => {
     try {
-        return jwt.verify(token, process.env.JWT_REFRESH_SECRET);
+        return jwt.verify(
+            
+            token, 
+            process.env.JWT_REFRESH_SECRET
+        );
     } catch (error) {
         console.log("JWT ERROR:", error.message);
         return null;
