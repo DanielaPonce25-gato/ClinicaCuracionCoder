@@ -55,7 +55,7 @@ app.get('/', (req, res) => {
   });
 });
 
-app.use('/api/v1/auth', authRoutes);  // nueva collecion Posman
+app.use('/api/v1/auth', authRoutes);  
 app.use('/api/v1/auth', googleLoginRoutes);
 app.use('/api/v1', protectedRoutes);
 app.use('/api/v1/passport', passportRoutes);

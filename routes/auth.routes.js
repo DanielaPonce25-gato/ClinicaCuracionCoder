@@ -1,9 +1,9 @@
 const { Router } = require('express');
 
 const {
-  register,
-  login,
-  logout
+    register,
+    login,
+    logout
 } = require('../controllers/auth.controller');
 
 const router = Router();
@@ -11,60 +11,70 @@ const router = Router();
 router.post('/register', register);
 router.post('/login', login);
 
-
 const {
-    generateAccessToken,
-    generateRefreshToken,
-    verifyRefreshToken
+  generateAccessToken,
+  generateRefreshToken,
+  verifyRefreshToken
 } = require('../config/jwt');
 
-
-// REFRESH TOKEN
-//  localhost:3000/api/v1/auth/refresh-token
-router.post('/refresh-token', async (req, res) => {  
-
+router.post('/refresh-token', (req, res) => {
   try {
+    const refreshToken = req.body?.refreshToken;
 
-    const { refreshToken } = req.body;  // envio el token vencido 
-
-    if (!refreshToken) {  // esta el token?
-      return res.status(401).json({
-        error: 'Refresh token requerido'
+    // 1. Validación fuerte
+    if (!refreshToken || typeof refreshToken !== 'string') {
+      return res.status(400).json({
+        ok: false,
+        error: 'Refresh token inválido'
       });
     }
 
-    // Verifica el refresh token
-    const decoded = verifyRefreshToken(refreshToken);
+    const token = refreshToken.trim();
 
-    // user reconstruido desde el payload
+    // 2. Verificación segura (SIN split)
+    let decoded;
+
+    try {
+      decoded = verifyRefreshToken(token);
+    } catch (err) {
+      console.log("JWT ERROR:", err.message);
+      return res.status(403).json({
+        ok: false,
+        error: 'Token inválido o expirado'
+      });
+    }
+
+    if (!decoded) {
+      return res.status(403).json({
+        ok: false,
+        error: 'Token inválido o expirado'
+      });
+    }
+
+    // 3. Usuario reconstruido desde token
     const user = {
       _id: decoded.userId,
       email: decoded.email,
       role: decoded.role
     };
 
-    // Genera nuevamente tokens
-    const newAccessToken = generateAccessToken(user);
-
+    // 4. Nuevos tokens
+    const accessToken = generateAccessToken(user);
     const newRefreshToken = generateRefreshToken(user);
 
     return res.json({
-      accessToken: newAccessToken,
+      ok: true,
+      accessToken,
       refreshToken: newRefreshToken
     });
 
   } catch (error) {
+    console.error("ERROR REFRESH:", error);
 
-    console.error('Error refresh token:', error);
-
-    return res.status(403).json({
-      error: 'Refresh token inválido o expirado'
+    return res.status(500).json({
+      ok: false,
+      error: 'Error del servidor'
     });
   }
 });
-
-
-router.post('/logout', logout);
-
-
 module.exports = router;
